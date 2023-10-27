@@ -28,7 +28,7 @@ func logAction(action string) {
 	logger.Printf("Action: %s\n", action)
 }
 
-func generateDynamicCommitMessage() string {
+func generateDynamicCommitMessage(issueNumber string) string {
 
 	cmd := exec.Command("git", "diff", "--cached")
 	output, err := cmd.Output()
@@ -60,15 +60,21 @@ func generateDynamicCommitMessage() string {
 	}
 
 	if commitMessage != "chore: Update\n\n" {
+		commitMessage += fmt.Sprintf("Issue: %s\n", issueNumber)
 		return commitMessage
 	}
 
 	return "chore: No significant changes\n\n"
 }
+func promptForIssueNumber() string {
+	fmt.Printf("Enter the issue number : ")
+	reader := bufio.NewReader(os.Stdin)
+	issueNumber, _ := reader.ReadString('\n')
+	return strings.TrimSpace(issueNumber)
+}
+func updateCommitPush(branchName string, issueNumber string) {
 
-func updateCommitPush(branchName string) {
-
-	commitMessage := generateDynamicCommitMessage()
+	commitMessage := generateDynamicCommitMessage(issueNumber)
 	logAction("Switching to branch: " + branchName)
 	if err := executeCommand("git", "checkout", "-b", branchName); err != nil {
 		log.Fatalf("Failed to execute 'git checkout -b' command '%s': %v", branchName, err)
@@ -97,5 +103,6 @@ func main() {
 	if branchName == "" {
 		log.Fatal("branch name cannot be empty")
 	}
-	updateCommitPush(branchName)
+	issueNumber := promptForIssueNumber()
+	updateCommitPush(branchName, issueNumber)
 }
