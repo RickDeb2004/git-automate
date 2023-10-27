@@ -87,6 +87,12 @@ func updateCommitPush(branchName string, issueNumber string) {
 	if err := executeCommand("git", "commit", "-m", commitMessage); err != nil {
 		log.Fatalf("Failed to execute 'git commit' command: %v", err)
 	}
+
+	logAction("Running automated tests")
+	if err := executeCommand("go", "test"); err != nil {
+		log.Fatalf("Automated tests failed: %v", err)
+	}
+	
 	logAction("Pushing changes to branch: " + branchName)
 	if err := executeCommand("git", "push", "origin", branchName); err != nil {
 		log.Fatalf("Failed to execute 'git push' command: %v", err)
