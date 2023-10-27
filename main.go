@@ -9,11 +9,23 @@ import (
 	"strings"
 )
 
+var logger *log.Logger
+
+func init() {
+	logFile, err := os.OpenFile("git_workflow.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Failed to open log file: ", err)
+	}
+	logger = log.New(logFile, "", log.LstdFlags)
+}
 func executeCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+func logAction(action string) {
+	logger.Printf("Action: %s\n", action)
 }
 
 func generateDynamicCommitMessage() string {
@@ -57,18 +69,19 @@ func generateDynamicCommitMessage() string {
 func updateCommitPush(branchName string) {
 
 	commitMessage := generateDynamicCommitMessage()
-
+	logAction("Switching to branch: " + branchName)
 	if err := executeCommand("git", "checkout", "-b", branchName); err != nil {
 		log.Fatalf("Failed to execute 'git checkout -b' command '%s': %v", branchName, err)
 	}
+	logAction("Adding changes to the commit")
 	if err := executeCommand("git", "add", "-A"); err != nil {
 		log.Fatalf("Failed to execute 'git add' command: %v", err)
 	}
-
+	logAction("Committing changes with message: " + commitMessage)
 	if err := executeCommand("git", "commit", "-m", commitMessage); err != nil {
 		log.Fatalf("Failed to execute 'git commit' command: %v", err)
 	}
-
+	logAction("Pushing changes to branch: " + branchName)
 	if err := executeCommand("git", "push", "origin", branchName); err != nil {
 		log.Fatalf("Failed to execute 'git push' command: %v", err)
 	}
