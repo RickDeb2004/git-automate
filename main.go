@@ -29,10 +29,21 @@ func generateDynamicCommitMessage() string {
 
 	for _, line := range lines {
 		if strings.HasPrefix(line, "+") {
-
+			fmt.Printf("Do you want to include this addition in the commit? (y/n) \n")
+			reader := bufio.NewReader(os.Stdin)
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+			if strings.ToLower(answer) == "y" {
+				commitMessage += "feat: " + strings.TrimSpace(line[1:]) + "\n"
+			}
 		} else if strings.HasPrefix(line, "-") {
-
-			commitMessage += "fix: " + strings.TrimSpace(line[1:]) + "\n"
+			fmt.Printf("Do you want to include this deletion in the commit? (y/n) \n")
+			reader := bufio.NewReader(os.Stdin)
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+			if strings.ToLower(answer) == "y" {
+				commitMessage += "fix: " + strings.TrimSpace(line[1:]) + "\n"
+			}
 		}
 	}
 
