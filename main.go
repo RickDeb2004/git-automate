@@ -92,10 +92,10 @@ func updateCommitPush(branchName string, issueNumber string) {
 	if err := executeCommand("go", "test"); err != nil {
 		log.Fatalf("Automated tests failed: %v", err)
 	}
-	
+
 	logAction("Pushing changes to branch: " + branchName)
 	if err := executeCommand("git", "push", "origin", branchName); err != nil {
-		log.Fatalf("Failed to execute 'git push' command: %v", err)
+		log.Fatalf("Failed to execute 'git push' commands: %v", err)
 	}
 
 	fmt.Println("Successfully added, committed, and pushed all the changes with dynamic commit message")
